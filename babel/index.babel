@@ -1,0 +1,94 @@
+//Redux:
+const ADD = "ADD";
+const defaultState = {
+  text: 'defaultText',
+  author: 'defaultAuthor'
+};
+const generateQuote = () => {
+  return {
+    text: Math.random().toString(36).substr(2, 5),
+    author: Math.random().toString(36).substr(2, 5)
+  };
+};
+
+const addQuote = () => {
+  const newQuote = generateQuote();
+  return {
+    type: ADD,
+    text: newQuote.text,
+    author: newQuote.author
+  };
+};
+
+const quoteReducer = (state = defaultState, action) => {
+  switch (action.type) {
+    case ADD:
+      return {
+        text: action.text,
+        author: action.author
+      };
+      
+    default:
+      return state;
+  }
+};
+
+const store = Redux.createStore(
+  quoteReducer,
+  Redux.applyMiddleware(ReduxThunk.default)
+);
+
+//React:
+const Provider = ReactRedux.Provider;
+const connect = ReactRedux.connect;
+
+class Quote extends React.Component {
+  constructor(props) {
+    super(props);
+    this.addQuote = this.addQuote.bind(this);
+  }
+  addQuote(event) {
+    this.props.addNewQuote();
+  }
+  render() {
+    return (
+      <div id="wrapper">
+        <div id="quote-box">
+          <p id="text">{this.props.text}</p>
+          <p id="author">{this.props.author}</p>
+          <button id="new-quote" onClick={this.addQuote}>Add Quote</button>
+          <br/>
+          <br/>
+          <a id="tweet-quote" href="twitter.com/intent/tweet">Tweet</a>
+        </div>
+      </div>
+    );
+  }
+}
+
+const mapStateToProps = (state) => {
+  return {
+    text: state.text,
+    author: state.author
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    addNewQuote: () => {
+      dispatch(addQuote());
+    }
+  };
+};
+
+const Container = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Quote);
+
+ReactDOM.render(
+  <Provider store={store}>
+    <Container/>
+  </Provider>,
+  document.getElementById("root")
+);
